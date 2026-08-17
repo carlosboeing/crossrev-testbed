@@ -112,6 +112,28 @@ test('consumeAll rejects an empty key list', () => {
   assert.throws(() => limiter.consumeAll([], 1), RangeError);
 });
 
+test('consumeAll leaves every balance unchanged when a later bucket cannot pay', () => {
+  const { limiter } = build();
+  limiter.consume('bob', 10);
+
+  const result = limiter.consumeAll(['alice', 'bob'], 5);
+
+  assert.strictEqual(result.allowed, false);
+  assert.strictEqual(limiter.peek('alice'), 10);
+  assert.strictEqual(limiter.peek('bob'), 0);
+});
+
+test('consumeAll reports the longest wait across multiple exhausted buckets', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 6);
+  limiter.consume('bob', 10);
+
+  const result = limiter.consumeAll(['alice', 'bob'], 5);
+
+  assert.strictEqual(result.allowed, false);
+  assert.strictEqual(result.retryAfterMs, 5000);
+});
+
 test('rejects a cost larger than the bucket can ever hold', () => {
   const { limiter } = build();
   assert.throws(() => limiter.consume('alice', 11), RangeError);

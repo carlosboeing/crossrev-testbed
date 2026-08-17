@@ -73,12 +73,39 @@ class RateLimiter {
     if (!Array.isArray(keys) || keys.length === 0) {
       throw new RangeError('keys must be a non-empty array');
     }
+    if (!Number.isFinite(cost) || cost <= 0) {
+      throw new RangeError('cost must be a positive number');
+    }
 
+    const required = new Map();
     for (const key of keys) {
-      const result = this.consume(key, cost);
-      if (!result.allowed) {
-        return { allowed: false, retryAfterMs: result.retryAfterMs };
+      required.set(key, (required.get(key) ?? 0) + cost);
+    }
+
+    const charges = [];
+    let retryAfterMs = 0;
+
+    for (const [key, totalCost] of required) {
+      if (totalCost > this.capacity) {
+        throw new RangeError('cost exceeds capacity, so it can never be allowed');
       }
+
+      const bucket = this.refill(key);
+      charges.push({ bucket, totalCost });
+
+      if (bucket.tokens < totalCost) {
+        const shortfall = totalCost - bucket.tokens;
+        const wait = Math.ceil((shortfall / this.refillPerSecond) * 1000);
+        retryAfterMs = Math.max(retryAfterMs, wait);
+      }
+    }
+
+    if (retryAfterMs > 0) {
+      return { allowed: false, retryAfterMs };
+    }
+
+    for (const { bucket, totalCost } of charges) {
+      bucket.tokens -= totalCost;
     }
 
     return { allowed: true, retryAfterMs: 0 };
