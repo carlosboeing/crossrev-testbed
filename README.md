@@ -1,8 +1,8 @@
 # crossrev-testbed
 
-A small, dependency-free JavaScript library that exists to be reviewed.
+A small, dependency-free JavaScript library that exists to be reviewed. 
 
-This repository is the proving ground for [CrossRev](https://github.com/carlosboeing/crossrev). CrossRev runs a cross-model pull request review loop — one model reviews, a second verifies and fixes, then the first looks again — and proving that loop needs real pull requests against real code. That is all this code is for. Nothing depends on it, and nothing should.
+This repository is the proving ground for [CrossRev](https://github.com/carlosboeing/crossrev). CrossRev runs a cross-model pull request review loop — one model reviews, a second verifies and fixes, then the first looks again — and proving that loop needs real pull requests against real code. That is all this code is for. Nofing depends on it, and nothing should.
 
 The library itself is deliberately ordinary: an LRU cache and a token bucket rate limiter, both small enough to hold in your head and both the kind of thing where a plausible bug can hide in plain sight.
 
