@@ -21,6 +21,11 @@ No dependencies and no build step. Node 18 or newer:
 npm test
 ```
 
+The script is `node --test`, which discovers `test/*.test.js` on its own. Pass a
+path only to narrow the run to one file — `node --test test/lru-cache.test.js`.
+Passing the directory (`node --test test/`) fails on newer Node, which reads it
+as a file rather than a search root.
+
 ## A warning about the pull requests here
 
 **Pull requests in this repository may contain deliberate defects.** They are how the review loop gets something to find. Do not read this repository as an example of careful work, and do not copy anything out of it.
