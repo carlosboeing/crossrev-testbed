@@ -58,6 +58,33 @@ class RateLimiter {
   }
 
   /**
+   * Charge several buckets for one request, all or nothing.
+   *
+   * Useful when a single request counts against more than one limit — a
+   * per-user bucket and a per-organisation bucket, say — and it should clear
+   * every one of them or leave them all untouched.
+   *
+   * @param {string[]} keys callers to charge
+   * @param {number} [cost=1] tokens charged to each bucket
+   * @returns {{allowed: boolean, retryAfterMs: number}} retryAfterMs is the
+   *   longest wait among the buckets that could not pay
+   */
+  consumeAll(keys, cost = 1) {
+    if (!Array.isArray(keys) || keys.length === 0) {
+      throw new RangeError('keys must be a non-empty array');
+    }
+
+    for (const key of keys) {
+      const result = this.consume(key, cost);
+      if (!result.allowed) {
+        return { allowed: false, retryAfterMs: result.retryAfterMs };
+      }
+    }
+
+    return { allowed: true, retryAfterMs: 0 };
+  }
+
+  /**
    * Read a caller's balance without spending anything.
    *
    * @param {string} key

@@ -89,6 +89,29 @@ test('sweep forgets idle full buckets and keeps spent ones', () => {
   assert.strictEqual(limiter.buckets.has('bob'), true);
 });
 
+test('consumeAll charges every bucket when they can all pay', () => {
+  const { limiter } = build();
+  const result = limiter.consumeAll(['alice', 'bob'], 2);
+
+  assert.strictEqual(result.allowed, true);
+  assert.strictEqual(limiter.peek('alice'), 8);
+  assert.strictEqual(limiter.peek('bob'), 8);
+});
+
+test('consumeAll refuses when the first bucket is empty', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 10);
+
+  const result = limiter.consumeAll(['alice', 'bob'], 1);
+  assert.strictEqual(result.allowed, false);
+  assert.strictEqual(result.retryAfterMs, 1000);
+});
+
+test('consumeAll rejects an empty key list', () => {
+  const { limiter } = build();
+  assert.throws(() => limiter.consumeAll([], 1), RangeError);
+});
+
 test('rejects a cost larger than the bucket can ever hold', () => {
   const { limiter } = build();
   assert.throws(() => limiter.consume('alice', 11), RangeError);
