@@ -134,6 +134,13 @@ test('consumeAll reports the longest wait across multiple exhausted buckets', ()
   assert.strictEqual(result.retryAfterMs, 5000);
 });
 
+test('consumeAll validates every bucket before refilling any, so an invalid later key leaves earlier keys untouched', () => {
+  const { limiter } = build();
+
+  assert.throws(() => limiter.consumeAll(['alice', 'bob', 'bob', 'bob'], 4), RangeError);
+  assert.strictEqual(limiter.buckets.has('alice'), false);
+});
+
 test('rejects a cost larger than the bucket can ever hold', () => {
   const { limiter } = build();
   assert.throws(() => limiter.consume('alice', 11), RangeError);

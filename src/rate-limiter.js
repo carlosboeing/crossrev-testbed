@@ -82,14 +82,16 @@ class RateLimiter {
       required.set(key, (required.get(key) ?? 0) + cost);
     }
 
+    for (const totalCost of required.values()) {
+      if (totalCost > this.capacity) {
+        throw new RangeError('cost exceeds capacity, so it can never be allowed');
+      }
+    }
+
     const charges = [];
     let retryAfterMs = 0;
 
     for (const [key, totalCost] of required) {
-      if (totalCost > this.capacity) {
-        throw new RangeError('cost exceeds capacity, so it can never be allowed');
-      }
-
       const bucket = this.refill(key);
       charges.push({ bucket, totalCost });
 
