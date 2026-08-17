@@ -46,7 +46,7 @@ jobs:
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: resolve
-        uses: carlosboeing/crossrev@dd8b3ca2f3ff79dfb8d92302b063d1a211f880d0   # v0.2.0
+        uses: carlosboeing/crossrev@aea10e31861a5bd82bfcc8694191f32eb055e6cd   # v0.2.0
         with:
           leg: resolve
           pr: ${{ github.event.pull_request.number }}
