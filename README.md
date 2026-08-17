@@ -24,3 +24,10 @@ npm test
 ## A warning about the pull requests here
 
 **Pull requests in this repository may contain deliberate defects.** They are how the review loop gets something to find. Do not read this repository as an example of careful work, and do not copy anything out of it.
+
+## Repository layout
+
+```
+src/    the library
+test/   one suite per module, run by `node --test`
+```
