@@ -72,7 +72,7 @@ class RateLimiter {
     }
 
     const bucket = this.refill(key);
-    bucket.tokens += amount;
+    bucket.tokens = Math.min(this.capacity, bucket.tokens + amount);
     return bucket.tokens;
   }
 
