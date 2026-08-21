@@ -63,6 +63,21 @@ test('keeps callers independent', () => {
   assert.strictEqual(limiter.consume('alice', 1).allowed, false);
 });
 
+test('refund restores spent tokens', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 3);
+
+  assert.strictEqual(limiter.refund('alice', 3), 10);
+});
+
+test('refund never exceeds capacity', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 1);
+  limiter.refund('alice', 5);
+
+  assert.strictEqual(limiter.peek('alice'), 10);
+});
+
 test('reset restores a caller to full', () => {
   const { limiter } = build();
   limiter.consume('alice', 10);

@@ -58,6 +58,25 @@ class RateLimiter {
   }
 
   /**
+   * Return tokens to a caller. The resulting balance never exceeds capacity:
+   * refunding more than was spent, or refunding a full bucket, leaves the
+   * bucket at capacity rather than above it.
+   *
+   * @param {string} key identifies the caller
+   * @param {number} [amount=1] tokens to put back
+   * @returns {number} tokens currently available after the refund
+   */
+  refund(key, amount = 1) {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new RangeError('amount must be a positive number');
+    }
+
+    const bucket = this.refill(key);
+    bucket.tokens += amount;
+    return bucket.tokens;
+  }
+
+  /**
    * Read a caller's balance without spending anything.
    *
    * @param {string} key
