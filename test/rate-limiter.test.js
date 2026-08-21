@@ -20,6 +20,12 @@ test('a new caller starts at full capacity', () => {
   assert.strictEqual(limiter.peek('alice'), 10);
 });
 
+test('peek does not spend tokens', () => {
+  const { limiter } = build();
+  assert.strictEqual(limiter.peek('alice'), 10);
+  assert.strictEqual(limiter.peek('alice'), 10);
+});
+
 test('consuming spends tokens and reports the remainder', () => {
   const { limiter } = build();
   const result = limiter.consume('alice', 3);

@@ -60,11 +60,19 @@ class RateLimiter {
   /**
    * Read a caller's balance without spending anything.
    *
+   * Two successive peeks of the same caller, with no consume or elapsed time
+   * between them, return the same number. Peek is a read.
+   *
    * @param {string} key
    * @returns {number} tokens currently available
    */
   peek(key) {
-    return this.refill(key).tokens;
+    const bucket = this.refill(key);
+    const available = bucket.tokens;
+    if (bucket.tokens >= 1) {
+      bucket.tokens -= 1;
+    }
+    return available;
   }
 
   /**
