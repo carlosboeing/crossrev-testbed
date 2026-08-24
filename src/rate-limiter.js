@@ -110,7 +110,8 @@ class RateLimiter {
     const buckets = Object.create(null);
 
     for (const key of this.buckets.keys()) {
-      buckets[key] = this.refill(key);
+      const bucket = this.refill(key);
+      buckets[key] = { tokens: bucket.tokens, updatedAt: bucket.updatedAt };
     }
 
     return {

@@ -111,6 +111,18 @@ test('a snapshot round trips through restore', () => {
   assert.strictEqual(restored, 1);
 });
 
+test('a snapshot is unaffected by activity after it was taken', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 4);
+
+  const state = limiter.snapshot();
+  limiter.consume('alice', 6);
+  const restored = limiter.restore(state);
+
+  assert.strictEqual(limiter.peek('alice'), 6);
+  assert.strictEqual(restored, 1);
+});
+
 test('a snapshot keeps a bucket named __proto__', () => {
   const { limiter } = build();
   limiter.consume('__proto__', 4);
