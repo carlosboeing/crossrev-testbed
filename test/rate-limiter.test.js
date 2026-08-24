@@ -105,7 +105,22 @@ test('a snapshot round trips through restore', () => {
 
   const state = limiter.snapshot();
   limiter.reset('alice');
-  limiter.restore(state);
+  const restored = limiter.restore(state);
 
   assert.strictEqual(limiter.peek('alice'), 6);
+  assert.strictEqual(restored, 1);
+});
+
+test('a snapshot keeps a bucket named __proto__', () => {
+  const { limiter } = build();
+  limiter.consume('__proto__', 4);
+
+  const state = limiter.snapshot();
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(state.buckets, '__proto__'), true);
+
+  limiter.reset('__proto__');
+  const restored = limiter.restore(state);
+
+  assert.strictEqual(limiter.peek('__proto__'), 6);
+  assert.strictEqual(restored, 1);
 });

@@ -107,7 +107,7 @@ class RateLimiter {
    * @returns {{capacity: number, refillPerSecond: number, buckets: object}}
    */
   snapshot() {
-    const buckets = {};
+    const buckets = Object.create(null);
 
     for (const key of this.buckets.keys()) {
       buckets[key] = this.refill(key);
@@ -132,6 +132,8 @@ class RateLimiter {
     for (const [key, bucket] of Object.entries(state.buckets)) {
       this.buckets.set(key, { tokens: bucket.tokens, updatedAt: bucket.updatedAt });
     }
+
+    return this.buckets.size;
   }
 
   /**
