@@ -31,12 +31,22 @@ The repository is kept rather than thrown away, so the run URLs cited in those r
 
 ## The pull request lifecycle
 
-A pull request here is a completed assertion about CrossRev, not work in flight. Four rules follow from that, and the first is the one that is easy to get wrong.
+Two kinds of pull request land here and they end differently. Which kind you are opening decides whether it ever merges, so settle that first.
 
-- **Never merge a proof pull request.** Every proof diffs from `main`, so merging one changes the base that every later proof is measured against. The v0.2.0 and v0.5.0 baselines are comparable only because `src/rate-limiter.js` was byte-identical at the base of both. A merge that added a method to it would have made the second run a different experiment.
+- A **proof** pull request carries a deliberate defect and exists to be reviewed. It is never merged.
+- An **infrastructure** pull request changes the fixture itself — the workflow pin, the modules, the tests, this file. It merges like ordinary work.
+
+### Proof pull requests
+
+- **Never merge one.** Every proof diffs from `main`, so merging changes the base that every later proof is measured against. The v0.2.0 and v0.5.0 baselines are comparable only because `src/rate-limiter.js` was byte-identical at the base of both. A merge adding a method to it would have made the second run a different experiment.
 - **Close it when its evidence is written up, and delete the branch.** Nothing is lost. The markers, the review threads and the resolution replies stay readable on a closed pull request — `gh api repos/carlosboeing/crossrev-testbed/issues/N/comments` returns them all. GitHub also keeps `refs/pull/N/head` after the branch is gone, so the commits stay reachable.
 - **Zero open pull requests is the resting state.** An open one should mean a proof is running right now. Parking a reproduction for an open CrossRev defect is not a reason to keep one, because the defect's own issue carries the run ids. Re-file a fresh pull request when a fix needs verifying.
-- **Change `main` deliberately.** Re-pinning the workflows after a CrossRev release is the usual reason and needs no ceremony. A commit touching `src/` or `test/` should name the earlier proofs it invalidates, because it invalidates them silently otherwise.
+
+### Infrastructure pull requests
+
+- **Route them through a pull request rather than pushing to `main`.** The branch is protected and says so. An admin push succeeds anyway, with a "Bypassed rule violations" line in the output that is easy to miss.
+- **Expect the loop to review them.** A pull request here fires the review workflow whatever it contains, so an infrastructure change gets a pass like anything else. That is fine and occasionally useful.
+- **Name what a change to `src/` or `test/` invalidates.** Earlier proofs measured a different fixture, and nothing else records that. Re-pinning the workflows after a CrossRev release invalidates nothing and needs no such note.
 
 ## Conventions
 
