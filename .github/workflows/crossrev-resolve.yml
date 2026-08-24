@@ -26,6 +26,7 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          skip-token-revoke: true
 
       # The head branch by name, not by refs/pull/N/head: this leg pushes, and a
       # detached checkout of the merge ref has nothing to push to. crossrev's own
@@ -40,13 +41,13 @@ jobs:
       # The whole step sits inside the sentinel rather than just its body: a
       # `run:` block emptied by the filter is a workflow that fails to parse.
       - run: |
-          npm install -g @openai/codex
-          npm install -g @anthropic-ai/claude-code
+          curl -fsSL https://chatgpt.com/codex/install.sh | sh -s -- --release 0.148.0
+          curl -fsSL https://claude.ai/install.sh | bash -s 2.1.237
 
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: resolve
-        uses: carlosboeing/crossrev@e97d9b8b404d3491d3090d7a3bcda14cb0327ab2   # v0.2.0
+        uses: carlosboeing/crossrev@82951ff91019f1cbf386550e0d7f210d7967b271   # v0.5.0-1-g82951ff
         with:
           leg: resolve
           pr: ${{ github.event.pull_request.number }}
@@ -57,6 +58,19 @@ jobs:
           # workflow: one writer, and it is the refresher.
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           CROSSREV_CODEX_AUTH: ${{ secrets.CROSSREV_CODEX_AUTH }}
+
+      # The run log — and the transcripts, which survive only a failed leg —
+      # dies with the runner unless it leaves as an artifact. The pull request
+      # marker stays the durable record; this is the diagnosis for a leg that
+      # went wrong. No GitHub credential reaches these files: the harness never
+      # holds one, and the transcripts are redacted before they are kept.
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossrev-run-${{ github.run_id }}
+          path: ~/.local/state/crossrev/runs/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - if: always()
         env:
