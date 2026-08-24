@@ -99,6 +99,42 @@ class RateLimiter {
   }
 
   /**
+   * Capture every bucket's balance so it can outlive the process.
+   *
+   * Buckets are brought up to date first, so a snapshot is a reading at one
+   * instant rather than a mix of stale entries.
+   *
+   * @returns {{capacity: number, refillPerSecond: number, buckets: object}}
+   */
+  snapshot() {
+    const buckets = {};
+
+    for (const key of this.buckets.keys()) {
+      buckets[key] = this.refill(key);
+    }
+
+    return {
+      capacity: this.capacity,
+      refillPerSecond: this.refillPerSecond,
+      buckets,
+    };
+  }
+
+  /**
+   * Load balances captured by snapshot(), replacing whatever is held now.
+   *
+   * @param {{capacity: number, refillPerSecond: number, buckets: object}} state
+   * @returns {number} how many buckets were loaded
+   */
+  restore(state) {
+    this.buckets.clear();
+
+    for (const [key, bucket] of Object.entries(state.buckets)) {
+      this.buckets.set(key, { tokens: bucket.tokens, updatedAt: bucket.updatedAt });
+    }
+  }
+
+  /**
    * Bring a bucket's balance up to date, creating it if this caller is new.
    *
    * @param {string} key

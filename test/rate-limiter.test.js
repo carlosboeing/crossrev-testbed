@@ -98,3 +98,14 @@ test('rejects nonsense configuration', () => {
   assert.throws(() => new RateLimiter({ capacity: 0, refillPerSecond: 1 }), RangeError);
   assert.throws(() => new RateLimiter({ capacity: 1, refillPerSecond: -1 }), RangeError);
 });
+
+test('a snapshot round trips through restore', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 4);
+
+  const state = limiter.snapshot();
+  limiter.reset('alice');
+  limiter.restore(state);
+
+  assert.strictEqual(limiter.peek('alice'), 6);
+});
