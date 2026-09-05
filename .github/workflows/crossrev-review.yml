@@ -137,6 +137,9 @@ jobs:
           # refresh token consumes it and a second writer kills the chain.
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           CROSSREV_CODEX_AUTH: ${{ secrets.CROSSREV_CODEX_AUTH }}
+          # TEMPORARY — diagnosing the 401 on wss://api.openai.com/v1/responses
+          # from this runner. Remove once the cause is known.
+          RUST_LOG: codex_api=debug,codex_core=debug
 
       # The run log — and the transcripts, which survive only a failed leg —
       # dies with the runner unless it leaves as an artifact. The pull request
