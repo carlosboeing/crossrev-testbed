@@ -24,3 +24,22 @@ npm test
 ## A warning about the pull requests here
 
 **Pull requests in this repository may contain deliberate defects.** They are how the review loop gets something to find. Do not read this repository as an example of careful work, and do not copy anything out of it.
+
+## Two kinds of pull request, and what happens to each
+
+They are told apart by whether the change is meant to be wrong, and they end differently.
+
+| Kind | What it is | Ends |
+|---|---|---|
+| **Proof** | Code under `src/` and `test/`, written to carry defects for the loop to find | Closed, never merged |
+| **Everything else** | Workflow repins, configuration, documentation | Merged |
+
+**A proof pull request is closed, not merged.** Its code was written to be wrong, so merging it would put the defects in `main` and spoil the fodder for the next one. Close it with the branch:
+
+```bash
+gh pr close <number> --delete-branch
+```
+
+**Deleting the branch does not delete the record.** GitHub keeps a closed pull request's diff, commits and comments whether the branch exists or not, so `gh pr diff <number>` still answers afterwards. Measured on pull request 13, whose branch is gone. That is the whole reason a branch is safe to remove here, and why hundreds of them never accumulate.
+
+**Everything else merges.** Repinning the workflows to a new CrossRev release is the usual one, and this section arrived as one of them. The repository has **Automatically delete head branches** switched on, so its branch goes without anyone remembering.
