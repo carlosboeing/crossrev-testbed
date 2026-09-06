@@ -43,7 +43,7 @@ class SlidingWindowCounter {
    */
   hit(key) {
     const at = this.now();
-    const timestamps = this.window(key, at);
+    const timestamps = this.#window(key, at);
 
     if (timestamps.length >= this.limit) {
       const oldest = timestamps[0];
@@ -69,17 +69,20 @@ class SlidingWindowCounter {
    * @returns {number}
    */
   remaining(key) {
-    return this.limit - this.window(key).length;
+    return this.limit - this.#window(key).length;
   }
 
   /**
    * The live timestamps for a caller, stale entries already dropped.
    *
+   * Private: the returned array is the one backing `hits`, so it must never
+   * be handed to a caller who could mutate it and corrupt counter state.
+   *
    * @param {string} key
    * @param {number} [at] the instant to measure against, defaults to `this.now()`
    * @returns {number[]} the timestamps inside the current window
    */
-  window(key, at = this.now()) {
+  #window(key, at = this.now()) {
     let timestamps = this.hits.get(key);
     if (timestamps === undefined) {
       timestamps = [];
@@ -114,7 +117,7 @@ class SlidingWindowCounter {
   prune() {
     let removed = 0;
     for (const key of this.hits.keys()) {
-      if (this.window(key).length === 0) {
+      if (this.#window(key).length === 0) {
         this.hits.delete(key);
         removed += 1;
       }
