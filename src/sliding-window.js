@@ -25,6 +25,9 @@ class SlidingWindowCounter {
     if (!Number.isFinite(windowMs) || windowMs <= 0) {
       throw new RangeError('windowMs must be a positive number');
     }
+    if (typeof now !== 'function') {
+      throw new TypeError('now must be a function');
+    }
 
     this.limit = limit;
     this.windowMs = windowMs;
@@ -39,8 +42,8 @@ class SlidingWindowCounter {
    * @returns {{allowed: boolean, remaining: number, retryAfterMs: number}}
    */
   hit(key) {
-    const timestamps = this.window(key);
     const at = this.now();
+    const timestamps = this.window(key, at);
 
     if (timestamps.length >= this.limit) {
       const oldest = timestamps[0];
@@ -73,17 +76,18 @@ class SlidingWindowCounter {
    * The live timestamps for a caller, stale entries already dropped.
    *
    * @param {string} key
+   * @param {number} [at] the instant to measure against, defaults to `this.now()`
    * @returns {number[]} the timestamps inside the current window
    */
-  window(key) {
+  window(key, at = this.now()) {
     let timestamps = this.hits.get(key);
     if (timestamps === undefined) {
       timestamps = [];
       this.hits.set(key, timestamps);
     }
 
-    const cutoff = this.now() - this.windowMs;
-    while (timestamps.length > 0 && timestamps[0] < cutoff) {
+    const cutoff = at - this.windowMs;
+    while (timestamps.length > 0 && timestamps[0] <= cutoff) {
       timestamps.shift();
     }
 
@@ -110,13 +114,9 @@ class SlidingWindowCounter {
   prune() {
     let removed = 0;
     for (const key of this.hits.keys()) {
-      try {
-        if (this.window(key).length === 0) {
-          this.hits.delete(key);
-          removed += 1;
-        }
-      } catch {
-        // A key that cannot be measured is left in place.
+      if (this.window(key).length === 0) {
+        this.hits.delete(key);
+        removed += 1;
       }
     }
     return removed;

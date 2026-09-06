@@ -57,3 +57,14 @@ test('the constructor refuses a limit or a window it cannot use', () => {
   assert.throws(() => new SlidingWindowCounter({ limit: 0, windowMs: 1 }), RangeError);
   assert.throws(() => new SlidingWindowCounter({ limit: 1, windowMs: 0 }), RangeError);
 });
+
+test('an event exactly windowMs old has expired', () => {
+  const counter = new SlidingWindowCounter({
+    limit: 1,
+    windowMs: 1000,
+    now: at([0, 1000]),
+  });
+
+  assert.equal(counter.hit('a').allowed, true);
+  assert.equal(counter.hit('a').allowed, true);
+});
