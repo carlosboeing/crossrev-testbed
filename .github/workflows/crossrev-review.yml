@@ -124,7 +124,7 @@ jobs:
       # character SHA is the pin and the tag rides in the comment.
       - name: review
         if: steps.pr.outputs.skip != 'true'
-        uses: carlosboeing/crossrev@a2f43927c5286f56b32f34edc0ec5cf55293e6bc   # untagged
+        uses: carlosboeing/crossrev@3f144cbed6527ccc463c103f18588145e273e8fb   # v0.6.1
         with:
           leg: review
           pr: ${{ steps.pr.outputs.number }}
