@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: carlosboeing/crossrev
-          ref: 82951ff91019f1cbf386550e0d7f210d7967b271   # v0.5.0-1-g82951ff
+          ref: 3f144cbed6527ccc463c103f18588145e273e8fb   # v0.6.1
           path: .crossrev-src
 
       - run: echo "$GITHUB_WORKSPACE/.crossrev-src/bin" >>"$GITHUB_PATH"

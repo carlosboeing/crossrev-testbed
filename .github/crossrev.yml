@@ -19,6 +19,19 @@ policy:
   max_passes_per_cycle: 3
   max_files_changed_per_pr: 200
   max_prs_per_day: 25
+# The resolve leg commits in a worktree of this repository, and a worktree shares its .git/hooks/, so
+# hooks installed there would fire on an automated commit. They never fire on a GitHub-hosted runner:
+# a fresh clone has no hooks, because hooks are not repository content. skip makes both sides behave
+# the same. Set run where a hook enforces something you rely on, and accept that a refused commit ends
+# the pass with the fix unpushed. See docs/adrs/0017-the-resolver-commits-without-host-git-hooks.md.
+git:
+  hooks: skip # skip | run — whether the resolver's commit and push run this repository's hooks
+# The per-run record under ~/.local/state/crossrev/runs/: a run log for every run, and the harness
+# transcripts when a leg fails. The pull request marker stays the durable record in automated mode;
+# these files are the local diagnosis, swept by age.
+logs:
+  retention_days: 14 # run logs and kept transcripts older than this are swept
+  keep_transcripts: false # true — keep the harness transcript even when a leg succeeds
 # Declared and working, but NOT the CI reviewer: Kimi's subscription credential
 # is a 15-minute OAuth access token with a rotating refresh token, not a static
 # key, so it cannot live in a repository secret. Point a leg at it locally, or in
@@ -39,6 +52,8 @@ endpoints:
 #                    CROSSREV_CODEX_AUTH, a second App with Secrets: write, and a cron
 #   claude / claude  one vendor, two models — fable reviewing, opus resolving. One
 #                    secret, no cron. Weaker, and doubles Claude usage
+#   opencode / claude  hosted or local, cross-vendor, either side. Its --model
+#                    takes provider/model, not a bare id
 #   agy / claude     cross-vendor, self-hosted only: agy's token lives about an hour
 #   kimi / claude    local only. kimi is an endpoint on the claude adapter, and its
 #                    credential is a 15-minute OAuth token
