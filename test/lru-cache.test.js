@@ -102,3 +102,12 @@ test('peek returns undefined for an unknown key', () => {
   assert.strictEqual(cache.peek('missing'), undefined);
 });
 
+test('peek returns undefined for an expired entry', () => {
+  let clock = 1000;
+  const cache = new LruCache({ ttlMs: 500, now: () => clock });
+
+  cache.set('a', 1);
+  clock += 500;
+  assert.strictEqual(cache.peek('a'), undefined);
+});
+

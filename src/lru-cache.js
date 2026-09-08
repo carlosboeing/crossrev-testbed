@@ -78,6 +78,12 @@ class LruCache {
   peek(key) {
     const entry = this.entries.get(key);
     if (entry === undefined) return undefined;
+
+    if (this.isExpired(entry)) {
+      this.entries.delete(key);
+      return undefined;
+    }
+
     return entry.value;
   }
 
