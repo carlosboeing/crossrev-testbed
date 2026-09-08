@@ -2,9 +2,9 @@
 #
 # The four `crossrev-*` workflows beside this one belong to the review loop;
 # this is the only workflow that tests the repository's own code. Its push run
-# checks out the event SHA, so a future exact-head verification read can treat
-# a green `test` job as evidence about the pushed head. The pull-request run
-# tests the same head SHA rather than GitHub's merge revision.
+# checks out the pushed head, so a future exact-head verification read can treat
+# a green `test` job on a push run as evidence about the pushed head. The
+# pull-request run checks out GitHub's merge revision instead and is not evidence.
 name: testbed CI
 
 on:
@@ -25,8 +25,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The event SHA, not the merge revision: the push run is the future
-          # exact-head evidence, and the pull-request run matches it.
+          # The pushed head on push runs (the future exact-head evidence).
+          # On pull_request runs this is GitHub's merge revision instead.
           ref: ${{ github.sha }}
 
       - name: Set up Node
