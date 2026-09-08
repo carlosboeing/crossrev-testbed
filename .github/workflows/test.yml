@@ -1,0 +1,60 @@
+# Repository check for the CrossRev testbed, hand-authored and not generated.
+#
+# The four `crossrev-*` workflows beside this one belong to the review loop;
+# this is the only workflow that tests the repository's own code. Its push run
+# checks out the event SHA, so a future exact-head verification read can treat
+# a green `test` job as evidence about the pushed head. The pull-request run
+# tests the same head SHA rather than GitHub's merge revision.
+name: testbed CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The event SHA, not the merge revision: the push run is the future
+          # exact-head evidence, and the pull-request run matches it.
+          ref: ${{ github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '18'
+
+      - name: Tests
+        run: npm test
+
+  required:
+    name: required
+    if: always()
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify status of required CI jobs
+        run: |
+          set -euo pipefail
+          test_result="${{ needs.test.result }}"
+
+          echo "test job result: $test_result"
+
+          if [ "$test_result" != "success" ]; then
+            echo "::error::mandatory job 'test' did not succeed (result: $test_result)"
+            exit 1
+          fi
+
+          echo "All required checks passed."
