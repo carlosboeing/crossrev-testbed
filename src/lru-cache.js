@@ -70,6 +70,18 @@ class LruCache {
   }
 
   /**
+   * Read an entry without marking it as most recently used.
+   *
+   * @param {string} key
+   * @returns {*} the stored value, or undefined when absent or expired
+   */
+  peek(key) {
+    const entry = this.entries.get(key);
+    if (entry === undefined) return undefined;
+    return entry.value;
+  }
+
+  /**
    * @param {string} key
    * @param {*} value
    * @returns {LruCache} this, for chaining

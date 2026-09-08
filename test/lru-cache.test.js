@@ -84,3 +84,21 @@ test('rejects a maxSize that cannot hold anything', () => {
 test('rejects a non-positive ttl', () => {
   assert.throws(() => new LruCache({ ttlMs: 0 }), RangeError);
 });
+
+test('peek reads a value without refreshing its recency', () => {
+  const cache = new LruCache({ maxSize: 2 });
+  cache.set('a', 1);
+  cache.set('b', 2);
+  assert.strictEqual(cache.peek('a'), 1);
+  cache.set('c', 3);
+
+  assert.strictEqual(cache.has('a'), false);
+  assert.strictEqual(cache.get('b'), 2);
+  assert.strictEqual(cache.get('c'), 3);
+});
+
+test('peek returns undefined for an unknown key', () => {
+  const cache = new LruCache();
+  assert.strictEqual(cache.peek('missing'), undefined);
+});
+
