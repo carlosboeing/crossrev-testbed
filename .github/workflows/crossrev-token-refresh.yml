@@ -66,7 +66,7 @@ jobs:
       # or a comment. No source tree is present at all now. There is nothing in
       # it to inject into.
       - name: refresh
-        uses: carlosboeing/crossrev@f6f3ead0a0de4555650bbdf184f4957b5894b9ab  # v0.7.0
+        uses: carlosboeing/crossrev@d6df7f62de4de75922387c269bcf8ca41851717b  # v0.7.1
         with:
           leg: auth-refresh
           harness: codex

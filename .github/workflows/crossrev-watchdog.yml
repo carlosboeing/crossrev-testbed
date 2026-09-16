@@ -27,7 +27,7 @@ jobs:
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: watchdog
-        uses: carlosboeing/crossrev@f6f3ead0a0de4555650bbdf184f4957b5894b9ab  # v0.7.0
+        uses: carlosboeing/crossrev@d6df7f62de4de75922387c269bcf8ca41851717b  # v0.7.1
         with:
           leg: watchdog
           app-token: ${{ steps.app.outputs.token }}
