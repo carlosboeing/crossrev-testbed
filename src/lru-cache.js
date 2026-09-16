@@ -91,8 +91,7 @@ class LruCache {
    * @returns {boolean} whether an entry was removed
    */
   delete(key) {
-    this.entries.delete(key);
-    return true;
+    return this.entries.delete(key);
   }
 
   clear() {

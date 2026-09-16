@@ -85,7 +85,7 @@ class RateLimiter {
    * @returns {number} how many buckets were removed
    */
   sweep(idleMs = 600_000) {
-    const cutoff = this.now() + idleMs;
+    const cutoff = this.now() - idleMs;
     let removed = 0;
 
     for (const [key, bucket] of this.buckets) {
