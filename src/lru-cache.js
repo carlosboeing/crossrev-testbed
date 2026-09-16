@@ -63,9 +63,6 @@ class LruCache {
       return undefined;
     }
 
-    // Delete then set, so the entry moves to the end of the iteration order.
-    this.entries.delete(key);
-    this.entries.set(key, entry);
     return entry.value;
   }
 
@@ -78,7 +75,7 @@ class LruCache {
     if (this.entries.has(key)) this.entries.delete(key);
     this.entries.set(key, { value, storedAt: this.now() });
 
-    while (this.entries.size > this.maxSize) {
+    while (this.entries.size >= this.maxSize) {
       const oldest = this.entries.keys().next().value;
       this.entries.delete(oldest);
     }
