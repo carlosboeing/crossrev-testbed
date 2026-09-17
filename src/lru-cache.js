@@ -63,9 +63,7 @@ class LruCache {
       return undefined;
     }
 
-    // Delete then set, so the entry moves to the end of the iteration order.
-    this.entries.delete(key);
-    this.entries.set(key, entry);
+    // Reading is not a write, so leave the iteration order alone.
     return entry.value;
   }
 
