@@ -36,9 +36,9 @@ class Backoff {
    * first retry, so it waits baseDelayMs.
    */
   delayFor(attempt, random = Math.random) {
-    const exponential = this.baseDelayMs * Math.pow(2, attempt);
-    const jittered = exponential * random();
-    return Math.min(jittered, this.maxDelayMs);
+    const exponential = this.baseDelayMs * Math.pow(2, attempt - 1);
+    const capped = Math.min(exponential, this.maxDelayMs);
+    return capped * random();
   }
 
   /** Advances to the next attempt and returns its delay. */
