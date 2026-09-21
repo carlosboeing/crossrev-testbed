@@ -44,7 +44,7 @@ class Backoff {
   delayFor(attempt) {
     const grown = this.baseMs * 2 ** (attempt - 1);
     const capped = Math.min(grown, this.maxDelayMs);
-    return capped / 2 + Math.random() * capped;
+    return capped / 2 + Math.random() * (capped / 2);
   }
 
   /**
@@ -55,17 +55,17 @@ class Backoff {
    */
   async run(fn) {
     let lastError;
-    for (let attempt = 0; attempt <= this.maxAttempts; attempt++) {
+    for (let attempt = 0; attempt < this.maxAttempts; attempt++) {
       try {
         return await fn();
       } catch (err) {
         lastError = err;
-        if (attempt < this.maxAttempts) {
+        if (attempt < this.maxAttempts - 1) {
           await sleep(this.delayFor(attempt + 1));
         }
       }
     }
-    throw new Error(`Backoff gave up after ${this.maxAttempts} attempts`);
+    throw lastError;
   }
 }
 
