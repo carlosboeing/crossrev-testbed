@@ -37,6 +37,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
           token: ${{ steps.app.outputs.token }}
+          # The token checks the code out and is then forgotten: keeping it
+          # would persist it in the checkout's git config for the rest of the
+          # job. CrossRev authenticates its own git calls per invocation, so
+          # later steps in this job have no persisted credential to reuse.
+          persist-credentials: false
 
       # The whole step sits inside the sentinel rather than just its body: a
       # `run:` block emptied by the filter is a workflow that fails to parse.
@@ -47,7 +52,7 @@ jobs:
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: resolve
-        uses: carlosboeing/crossrev@682303257f7eaa41dcb93f945d48122d9c4e14a0   # v0.8.0
+        uses: carlosboeing/crossrev@e82f2645b82834ecf3ff0593c36849a4a1790169   # untagged
         with:
           leg: resolve
           pr: ${{ github.event.pull_request.number }}

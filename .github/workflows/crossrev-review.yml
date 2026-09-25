@@ -107,6 +107,11 @@ jobs:
           ref: refs/pull/${{ steps.pr.outputs.number }}/head
           fetch-depth: 0
           token: ${{ steps.app.outputs.token }}
+          # The token checks the code out and is then forgotten: keeping it
+          # would persist it in the checkout's git config for the rest of the
+          # job. CrossRev authenticates its own git calls per invocation, so
+          # later steps in this job have no persisted credential to reuse.
+          persist-credentials: false
 
       # A hosted runner is a fresh container every time, so the harness is
       # installed per run. A self-hosted one already has them, along with the
@@ -124,7 +129,7 @@ jobs:
       # character SHA is the pin and the tag rides in the comment.
       - name: review
         if: steps.pr.outputs.skip != 'true'
-        uses: carlosboeing/crossrev@682303257f7eaa41dcb93f945d48122d9c4e14a0   # v0.8.0
+        uses: carlosboeing/crossrev@e82f2645b82834ecf3ff0593c36849a4a1790169   # untagged
         with:
           leg: review
           pr: ${{ steps.pr.outputs.number }}
