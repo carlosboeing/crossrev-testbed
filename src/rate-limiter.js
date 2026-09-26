@@ -58,6 +58,22 @@ class RateLimiter {
   }
 
   /**
+   * How long until a caller can afford a cost.
+   *
+   * @param {string} key identifies the caller
+   * @param {number} [cost=1] tokens the request will cost
+   * @returns {number} milliseconds until the bucket covers the cost, 0 when it already does
+   */
+  availableInMs(key, cost = 1) {
+    const bucket = this.refill(key);
+    if (bucket.tokens >= cost) {
+      return 0;
+    }
+    const shortfall = cost - bucket.tokens;
+    return Math.floor((shortfall / this.refillPerSecond) * 1000);
+  }
+
+  /**
    * Read a caller's balance without spending anything.
    *
    * @param {string} key
