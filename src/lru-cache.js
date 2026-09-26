@@ -41,7 +41,7 @@ class LruCache {
   pruneExpired() {
     let removed = 0;
     for (const [key, entry] of this.entries) {
-      if (!this.isExpired(entry)) {
+      if (this.isExpired(entry)) {
         this.entries.delete(key);
         removed += 1;
       }
