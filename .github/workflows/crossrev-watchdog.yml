@@ -23,11 +23,15 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@v5
+        with:
+          # Nothing later in this job runs git over the network, so the token
+          # this fetched with is not persisted in the checkout.
+          persist-credentials: false
 
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: watchdog
-        uses: carlosboeing/crossrev@682303257f7eaa41dcb93f945d48122d9c4e14a0   # v0.8.0
+        uses: carlosboeing/crossrev@e63ebfeb3796ded53e754698dbcad3482f760f2c   # v0.9.0
         with:
           leg: watchdog
           app-token: ${{ steps.app.outputs.token }}
