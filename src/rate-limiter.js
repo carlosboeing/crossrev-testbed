@@ -65,12 +65,19 @@ class RateLimiter {
    * @returns {number} milliseconds until the bucket covers the cost, 0 when it already does
    */
   availableInMs(key, cost = 1) {
+    if (!Number.isFinite(cost) || cost <= 0) {
+      throw new RangeError('cost must be a positive number');
+    }
+    if (cost > this.capacity) {
+      throw new RangeError('cost exceeds capacity, so it can never be allowed');
+    }
+
     const bucket = this.refill(key);
     if (bucket.tokens >= cost) {
       return 0;
     }
     const shortfall = cost - bucket.tokens;
-    return Math.floor((shortfall / this.refillPerSecond) * 1000);
+    return Math.ceil((shortfall / this.refillPerSecond) * 1000);
   }
 
   /**
