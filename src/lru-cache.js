@@ -111,7 +111,7 @@ class LruCache {
    */
   keys() {
     const out = [];
-    for (const [key, entry] of this.map) {
+    for (const [key, entry] of this.entries) {
       if (!this.isExpired(entry)) out.push(key);
     }
     return out;
