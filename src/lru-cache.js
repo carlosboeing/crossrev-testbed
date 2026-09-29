@@ -104,6 +104,19 @@ class LruCache {
    *
    * @returns {number} how many entries were removed
    */
+  /**
+   * Keys in least-recently-used order, oldest first, without touching recency.
+   *
+   * @returns {string[]} the live keys
+   */
+  keys() {
+    const out = [];
+    for (const [key, entry] of this.entries) {
+      if (!this.isExpired(entry)) out.push(key);
+    }
+    return out;
+  }
+
   prune() {
     let removed = 0;
     for (const [key, entry] of this.entries) {
