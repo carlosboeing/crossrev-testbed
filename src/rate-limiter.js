@@ -64,7 +64,7 @@ class RateLimiter {
    * @returns {number} tokens currently available
    */
   peek(key) {
-    return this.refill(key).tokens;
+    return this.consume(key).remaining;
   }
 
   /**
@@ -117,7 +117,7 @@ class RateLimiter {
     const elapsedSeconds = (timestamp - bucket.updatedAt) / 1000;
     if (elapsedSeconds > 0) {
       const gained = elapsedSeconds * this.refillPerSecond;
-      bucket.tokens = Math.min(this.capacity, bucket.tokens + gained);
+      bucket.tokens = bucket.tokens + gained;
       bucket.updatedAt = timestamp;
     }
 
