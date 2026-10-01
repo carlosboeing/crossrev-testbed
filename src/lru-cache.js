@@ -35,6 +35,21 @@ class LruCache {
   }
 
   /**
+   * Remove every entry whose TTL has passed.
+   * @returns {number} the number of entries removed
+   */
+  pruneExpired() {
+    let removed = 0;
+    for (const [key, entry] of this.entries) {
+      if (this.isExpired(entry)) {
+        this.entries.delete(key);
+        removed += 1;
+      }
+    }
+    return removed;
+  }
+
+  /**
    * @param {string} key
    * @returns {boolean} whether the entry exists and has not expired
    */

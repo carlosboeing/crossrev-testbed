@@ -76,6 +76,29 @@ test('prune drops expired entries and reports the count', () => {
   assert.strictEqual(cache.get('c'), 3);
 });
 
+test('pruneExpired drops only expired entries and reports the count', () => {
+  let clock = 0;
+  const cache = new LruCache({ ttlMs: 100, now: () => clock });
+
+  cache.set('a', 1);
+  cache.set('b', 2);
+  clock += 100;
+  cache.set('c', 3);
+
+  assert.strictEqual(cache.pruneExpired(), 2);
+  assert.strictEqual(cache.size, 1);
+  assert.strictEqual(cache.get('c'), 3);
+});
+
+test('pruneExpired removes nothing from a cache without a ttl', () => {
+  const cache = new LruCache();
+  cache.set('a', 1);
+  cache.set('b', 2);
+
+  assert.strictEqual(cache.pruneExpired(), 0);
+  assert.strictEqual(cache.size, 2);
+});
+
 test('rejects a maxSize that cannot hold anything', () => {
   assert.throws(() => new LruCache({ maxSize: 0 }), RangeError);
   assert.throws(() => new LruCache({ maxSize: 1.5 }), RangeError);
