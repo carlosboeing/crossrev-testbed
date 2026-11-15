@@ -62,9 +62,11 @@ endpoints:
 # as an entitlement error rather than a typo. `effort` reaches the harness verbatim.
 # Override a leg for one run with `--harness codex`, without touching this.
 reviewer:
-  harness: codex
+  harness: opencode
+  model: opencode-go/deepseek-v4.1-flash
 resolver:
-  harness: claude
+  harness: opencode
+  model: opencode-go/glm-5.3-flash
 # A real finding crossrev chose not to fix still has to go somewhere, or it disappears when the pull
 # request merges: an unresolved thread on a merged pull request appears in no GitHub view. Each
 # destination's own settings sit under its name.

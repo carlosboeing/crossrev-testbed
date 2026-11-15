@@ -46,13 +46,12 @@ jobs:
       # The whole step sits inside the sentinel rather than just its body: a
       # `run:` block emptied by the filter is a workflow that fails to parse.
       - run: |
-          curl -fsSL https://chatgpt.com/codex/install.sh | sh -s -- --release 0.159.2
-          curl -fsSL https://claude.ai/install.sh | bash -s 2.1.237
+          npm install -g @opencode/cli@2.0.15
 
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
       - name: resolve
-        uses: carlosboeing/crossrev@5723ef807189449518e158190b038eabba94e2da   # v0.10.0
+        uses: carlosboeing/crossrev@daea6c032b2b7a2450e333ab2e8905ae740af50a   # v0.12.1
         with:
           leg: resolve
           pr: ${{ github.event.pull_request.number }}
@@ -61,8 +60,7 @@ jobs:
           CROSSREV_APP_SLUG: ${{ steps.app.outputs.app-slug }}
           # Read-only, and discarded when the leg finishes. See the review
           # workflow: one writer, and it is the refresher.
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          CROSSREV_CODEX_AUTH: ${{ secrets.CROSSREV_CODEX_AUTH }}
+          CROSSREV_OPENCODE_AUTH: ${{ secrets.CROSSREV_OPENCODE_AUTH }}
 
       # The run log — and the transcripts, which survive only a failed leg —
       # dies with the runner unless it leaves as an artifact. The pull request
