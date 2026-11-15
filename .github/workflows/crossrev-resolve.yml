@@ -46,7 +46,7 @@ jobs:
       # The whole step sits inside the sentinel rather than just its body: a
       # `run:` block emptied by the filter is a workflow that fails to parse.
       - run: |
-          npm install -g @opencode/cli@2.0.15
+          npm install -g @opencode/cli@2.3.0
 
       # A tag is not a pin: `git tag -f` plus a force push moves it. The 40
       # character SHA is the pin and the tag rides in the comment.
