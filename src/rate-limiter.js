@@ -58,13 +58,36 @@ class RateLimiter {
   }
 
   /**
+   * How long until a caller can afford a cost.
+   *
+   * @param {string} key identifies the caller
+   * @param {number} [cost=1] tokens the request will cost
+   * @returns {number} milliseconds until the bucket covers the cost, 0 when it already does
+   */
+  availableInMs(key, cost = 1) {
+    if (!Number.isFinite(cost) || cost <= 0) {
+      throw new RangeError('cost must be a positive number');
+    }
+    if (cost > this.capacity) {
+      throw new RangeError('cost exceeds capacity, so it can never be allowed');
+    }
+
+    const bucket = this.refill(key);
+    if (bucket.tokens >= cost) {
+      return 0;
+    }
+    const shortfall = cost - bucket.tokens;
+    return Math.ceil((shortfall / this.refillPerSecond) * 1000);
+  }
+
+  /**
    * Read a caller's balance without spending anything.
    *
    * @param {string} key
    * @returns {number} tokens currently available
    */
   peek(key) {
-    return this.refill(key).tokens;
+    return this.consume(key).remaining;
   }
 
   /**
@@ -117,7 +140,7 @@ class RateLimiter {
     const elapsedSeconds = (timestamp - bucket.updatedAt) / 1000;
     if (elapsedSeconds > 0) {
       const gained = elapsedSeconds * this.refillPerSecond;
-      bucket.tokens = Math.min(this.capacity, bucket.tokens + gained);
+      bucket.tokens = bucket.tokens + gained;
       bucket.updatedAt = timestamp;
     }
 

@@ -98,3 +98,49 @@ test('rejects nonsense configuration', () => {
   assert.throws(() => new RateLimiter({ capacity: 0, refillPerSecond: 1 }), RangeError);
   assert.throws(() => new RateLimiter({ capacity: 1, refillPerSecond: -1 }), RangeError);
 });
+
+test('availableInMs is zero when the bucket can already afford the cost', () => {
+  const { limiter } = build();
+  assert.strictEqual(limiter.availableInMs('alice', 3), 0);
+});
+
+test('availableInMs reports a rounded-up delay for a depleted bucket', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 10);
+
+  assert.strictEqual(limiter.availableInMs('alice', 5), 5000);
+});
+
+test('availableInMs accounts for tokens already regained', () => {
+  const { limiter, advance } = build();
+  limiter.consume('alice', 10);
+  advance(3000);
+
+  assert.strictEqual(limiter.availableInMs('alice', 5), 2000);
+});
+
+test('availableInMs does not spend tokens when the cost is affordable', () => {
+  const { limiter } = build();
+
+  limiter.availableInMs('alice', 3);
+  limiter.availableInMs('alice', 3);
+
+  assert.strictEqual(limiter.peek('alice'), 10);
+});
+
+test('availableInMs does not spend tokens when the cost is unaffordable', () => {
+  const { limiter } = build();
+  limiter.consume('alice', 7);
+
+  limiter.availableInMs('alice', 5);
+  limiter.availableInMs('alice', 5);
+
+  assert.strictEqual(limiter.peek('alice'), 3);
+});
+
+test('availableInMs rejects nonsense costs', () => {
+  const { limiter } = build();
+  assert.throws(() => limiter.availableInMs('alice', 0), RangeError);
+  assert.throws(() => limiter.availableInMs('alice', -1), RangeError);
+  assert.throws(() => limiter.availableInMs('alice', 11), RangeError);
+});
